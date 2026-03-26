@@ -10,9 +10,9 @@
   :root {
     --bg-main: #F4F6F9;
     --bg-card: #FFFFFF;
-    --primary: #2563EB; /* 세련된 블루 */
+    --primary: #2563EB; 
     --primary-light: #60A5FA;
-    --secondary: #E11D48; /* 포인트 레드 */
+    --secondary: #E11D48; 
     --text-main: #111827;
     --text-muted: #6B7280;
     --border: #E5E7EB;
@@ -269,7 +269,7 @@ const DATA = {
       {name: "문정원", team: "한국도로공사", tpc: 241.4, salary: 2.5, code: "0001271", val1: 697, lbl1: "디그성공", val2: 49.3, lbl2: "리시브효율(%)"},
       {name: "한다혜", team: "페퍼저축은행", tpc: 200.6, salary: 2.9, code: "0001494", val1: 609, lbl1: "디그성공", val2: 35.9, lbl2: "리시브효율(%)"},
       {name: "김연견", team: "현대건설", tpc: 192.1, salary: 4.0, code: "0001267", val1: 681, lbl1: "디그성공", val2: 35.7, lbl2: "리시브효율(%)"},
-      {name: "임명옥", "team: "IBK기업은행", tpc: 175.2, salary: 1.5, code: "0000405", val1: 589, lbl1: "디그성공", val2: 45.3, lbl2: "리시브효율(%)"},
+      {name: "임명옥", team: "IBK기업은행", tpc: 175.2, salary: 1.5, code: "0000405", val1: 589, lbl1: "디그성공", val2: 45.3, lbl2: "리시브효율(%)"},
       {name: "노란", team: "정관장", tpc: 163.3, salary: 2.0, code: "0001407", val1: 642, lbl1: "디그성공", val2: 29.4, lbl2: "리시브효율(%)"}
     ]
   }
@@ -297,107 +297,3 @@ window.onload = () => {
     data: {
       labels: DATA.teamTPC.map(d => d.team),
       datasets: [{
-        label: 'TPC (총공헌점수)',
-        data: DATA.teamTPC.map(d => d.tpc),
-        backgroundColor: '#60A5FA',
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-        y: { grid: { color: '#E5E7EB' } }
-      }
-    }
-  });
-
-  // 3. 포지션별 렌더링
-  const posWrapper = document.getElementById('positionsWrapper');
-  let posHtml = '';
-
-  DATA.posInfo.forEach(info => {
-    const pData = DATA.players[info.id];
-    const topPlayer = pData[0];
-    const runners = pData.slice(1);
-
-    posHtml += `
-      <div class="pos-section">
-        <div class="pos-header">
-          <div class="pos-title">${info.title}</div>
-        </div>
-        <p style="font-size:0.85rem; color:#6B7280; margin-bottom:15px;">${info.desc}</p>
-        
-        <div class="chart-container" style="height:200px;">
-          <canvas id="chart-${info.id}"></canvas>
-        </div>
-
-        <div class="top-player-card">
-          <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${topPlayer.code}.webp" class="player-photo">
-          <div class="player-info">
-            <div class="rank-badge">TPC 1위</div>
-            <h3>${topPlayer.name}</h3>
-            <p>${topPlayer.team} · 연봉 ${topPlayer.salary}억</p>
-            <div class="p-stats">
-              <div class="stat-col"><div class="stat-val main">${topPlayer.tpc.toFixed(1)}</div><div class="stat-lbl">TPC</div></div>
-              <div class="stat-col"><div class="stat-val">${topPlayer.val1}</div><div class="stat-lbl">${topPlayer.lbl1}</div></div>
-              <div class="stat-col"><div class="stat-val">${topPlayer.val2}</div><div class="stat-lbl">${topPlayer.lbl2}</div></div>
-            </div>
-          </div>
-        </div>
-
-        ${runners.map((p, i) => `
-          <div class="runner-up-row">
-            <div class="ru-rank">${i+2}</div>
-            <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="ru-photo">
-            <div class="ru-info">
-              <h4>${p.name}</h4>
-              <span>${p.team} · ${p.salary}억</span>
-            </div>
-            <div class="ru-score">${p.val1}<span>${p.lbl1}</span></div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  });
-  posWrapper.innerHTML = posHtml;
-
-  // 포지션별 산점도 차트 그리기
-  DATA.posInfo.forEach(info => {
-    const pData = DATA.players[info.id];
-    const chartData = pData.map(p => ({
-        x: p.salary, y: p.val1, name: p.name, team: p.team
-    }));
-
-    new Chart(document.getElementById(`chart-${info.id}`), {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                data: chartData,
-                backgroundColor: '#2563EB',
-                pointRadius: 6,
-                pointHoverRadius: 8
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: { 
-                    callbacks: { 
-                        label: ctx => `${ctx.raw.name} (${ctx.raw.team}) - 연봉 ${ctx.raw.x}억 / ${pData[0].lbl1}: ${ctx.raw.y}` 
-                    } 
-                }
-            },
-            scales: {
-                x: { title: { display: true, text: '연봉 (억원)' }, grid: { color: '#E5E7EB' } },
-                y: { title: { display: true, text: pData[0].lbl1 }, grid: { color: '#E5E7EB' } }
-            }
-        }
-    });
-  });
-};
-</script>
-</body>
-</html>
