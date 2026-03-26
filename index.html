@@ -3,80 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>V-League 2025-26 | 데이터로 보는 우승의 비밀</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@500;700;900&display=swap" rel="stylesheet">
+<title>V-League 2025-26 | 정규리그 데이터 리포트</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root {
-    --bg-dark: #121212;
-    --bg-card: #1e1e1e;
-    --primary: #FF3B30;
-    --primary-light: #FF6B66;
-    --secondary: #0A84FF;
-    --text-main: #FFFFFF;
-    --text-muted: #8E8E93;
-    --gold: #FFD700;
+    --bg-main: #F4F6F9;
+    --bg-card: #FFFFFF;
+    --primary: #2563EB; /* 세련된 블루 */
+    --primary-light: #60A5FA;
+    --secondary: #E11D48; /* 포인트 레드 */
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --border: #E5E7EB;
   }
   
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, sans-serif; }
   
   body { 
-    background-color: #000; 
+    background-color: #E2E8F0; 
     color: var(--text-main); 
     display: flex; 
     justify-content: center;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* 모바일 래퍼 (PC에서도 폰처럼 보이게) */
+  /* 모바일 래퍼 */
   .mobile-container {
     width: 100%;
     max-width: 480px;
-    background-color: var(--bg-dark);
+    background-color: var(--bg-main);
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
   }
 
-  /* 네비게이션바 (Sticky) */
+  /* 네비게이션바 */
   .top-bar {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(18, 18, 18, 0.9);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
-    padding: 15px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 800;
     font-size: 1.2rem;
     color: var(--primary);
     text-align: center;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
   }
 
   /* 공통 섹션 스타일 */
-  section { padding: 40px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  section { padding: 40px 20px; border-bottom: 1px solid var(--border); }
   
   .badge {
     display: inline-block;
-    padding: 4px 10px;
-    background: rgba(255, 59, 48, 0.15);
-    color: var(--primary-light);
+    padding: 5px 12px;
+    background: #EFF6FF;
+    color: var(--primary);
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
   .title {
-    font-size: 1.8rem;
-    font-weight: 900;
-    line-height: 1.3;
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.35;
     margin-bottom: 15px;
     word-break: keep-all;
+    color: var(--text-main);
   }
 
   .desc {
@@ -87,38 +86,26 @@
     word-break: keep-all;
   }
 
-  .highlight { color: var(--primary-light); font-weight: 700; }
-  .highlight-blue { color: var(--secondary); font-weight: 700; }
+  .highlight { color: var(--primary); font-weight: 700; }
+  .highlight-red { color: var(--secondary); font-weight: 700; }
 
   /* 챕터 1: 순위표 */
-  .standings-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+  .standings-list { display: flex; flex-direction: column; gap: 8px; }
   .team-row {
     display: flex;
     align-items: center;
     background: var(--bg-card);
-    padding: 12px 15px;
+    padding: 12px 16px;
     border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   }
-  .team-row.rank-1 { border-left: 4px solid var(--primary); background: rgba(255, 59, 48, 0.05); }
-  .rank-num { width: 30px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--text-muted); }
+  .team-row.rank-1 { border-left: 4px solid var(--primary); background: #F8FAFC; }
+  .rank-num { width: 25px; font-weight: 800; font-size: 1.1rem; color: var(--text-muted); }
   .team-row.rank-1 .rank-num { color: var(--primary); }
+  .team-logo { width: 32px; height: 32px; object-fit: contain; margin-right: 12px; }
   .team-name { flex: 1; font-weight: 700; font-size: 1.05rem; }
-  .team-pts { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--secondary); }
-
-  /* 용어 설명 말풍선 */
-  .info-box {
-    background: rgba(10, 132, 255, 0.1);
-    border: 1px solid rgba(10, 132, 255, 0.3);
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 25px;
-  }
-  .info-box h4 { color: var(--secondary); margin-bottom: 5px; font-size: 0.95rem; }
-  .info-box p { font-size: 0.85rem; color: #CCC; line-height: 1.5; margin: 0; }
+  .team-pts { font-weight: 800; font-size: 1.1rem; color: var(--text-main); }
 
   /* 차트 컨테이너 */
   .chart-container {
@@ -127,70 +114,70 @@
     background: var(--bg-card);
     border-radius: 12px;
     padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+
+  /* 선수 카드 (스크롤뷰) */
+  .pos-section { margin-bottom: 40px; }
+  .pos-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 15px;
   }
-
-  /* 선수 카드 (가로형) */
-  .player-tabs {
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    scrollbar-width: none;
-  }
-  .player-tabs::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    flex-shrink: 0;
-    padding: 8px 16px;
-    background: transparent;
-    border: 1px solid var(--text-muted);
-    color: var(--text-muted);
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .tab-btn.active {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: #fff;
-  }
-
-  .player-card {
+  .pos-title { font-size: 1.3rem; font-weight: 800; color: var(--text-main); }
+  
+  .top-player-card {
     background: var(--bg-card);
     border-radius: 16px;
     padding: 20px;
     margin-bottom: 12px;
-    position: relative;
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-  .p-rank {
-    position: absolute;
-    top: 20px; right: 20px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: rgba(255,255,255,0.1);
-  }
-  .p-rank.gold { color: var(--gold); }
-  .p-info h3 { font-size: 1.4rem; font-weight: 900; margin-bottom: 2px; }
-  .p-info p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; }
-  .p-stats {
     display: flex;
-    justify-content: space-between;
-    background: rgba(0,0,0,0.3);
-    padding: 12px;
-    border-radius: 8px;
+    align-items: center;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   }
-  .stat-col { text-align: center; }
-  .stat-val { font-family: 'Poppins', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
-  .stat-val.main { color: var(--primary-light); }
-  .stat-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+  .player-photo {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+    object-fit: cover;
+    margin-right: 16px;
+    border: 2px solid #E5E7EB;
+  }
+  .player-info { flex: 1; }
+  .rank-badge {
+    display: inline-block; background: var(--primary); color: white;
+    font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; margin-bottom: 6px;
+  }
+  .player-info h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 2px; }
+  .player-info p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
+  .p-stats { display: flex; gap: 15px; }
+  .stat-col { display: flex; flex-direction: column; }
+  .stat-val { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+  .stat-val.main { color: var(--secondary); }
+  .stat-lbl { font-size: 0.7rem; color: var(--text-muted); }
+
+  .runner-up-row {
+    display: flex; align-items: center;
+    background: var(--bg-card);
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+  .ru-rank { width: 20px; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); }
+  .ru-photo { width: 40px; height: 40px; border-radius: 50%; background: #F3F4F6; margin-right: 12px; object-fit: cover; }
+  .ru-info { flex: 1; }
+  .ru-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+  .ru-info span { font-size: 0.75rem; color: var(--text-muted); }
+  .ru-score { font-weight: 700; font-size: 0.9rem; color: var(--primary); text-align: right;}
+  .ru-score span { display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: normal; }
 
   /* 푸터 */
-  footer { text-align: center; padding: 40px 20px; font-size: 0.8rem; color: var(--text-muted); }
+  footer { text-align: center; padding: 40px 20px; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-card); }
 </style>
 </head>
 <body>
@@ -199,229 +186,217 @@
   <div class="top-bar">V-LEAGUE DATA</div>
 
   <section id="chapter1">
-    <div class="badge">Chapter 1. 결과</div>
-    <h1 class="title">도로공사는<br>어떻게 우승했을까?</h1>
-    <p class="desc">25-26 정규리그, 한국도로공사가 승점 69점으로 1위를 차지했습니다. 2위 현대건설과는 단 4점 차이의 치열한 접전이었습니다.</p>
-    
-    <div class="standings-list" id="standingsList">
-      </div>
+    <div class="badge">Chapter 1. 정규리그 결과</div>
+    <h1 class="title">치열했던 25-26 시즌,<br>최후의 승자는?</h1>
+    <p class="desc">한국도로공사가 승점 69점으로 정규리그 1위를 차지했습니다. 2위 현대건설과는 단 4점 차이의 접전이었습니다.</p>
+    <div class="standings-list" id="standingsList"></div>
   </section>
 
   <section id="chapter2">
-    <div class="badge">Chapter 2. 승리의 비밀</div>
-    <h1 class="title">스타 한 명보다<br><span class="highlight">약점이 없는 팀</span></h1>
-    
-    <div class="info-box">
-      <h4>💡 WAR(승리기여도)란?</h4>
-      <p>야구에서 자주 쓰는 지표로, <b>"이 선수가 팀 승리에 얼마나 기여했는가"</b>를 나타냅니다. 숫자가 높을수록 에이스, 마이너스(-)라면 오히려 팀에 손해를 끼쳤다는 뜻입니다.</p>
-    </div>
-
-    <p class="desc">현대건설은 리그 최고의 에이스들을 보유해 <span class="highlight-blue">플러스(+) 기여도</span>가 가장 높았습니다. 하지만 <span class="highlight">마이너스(-) 구멍</span> 역시 가장 컸습니다. 반면 도로공사는 <b>전원 1인분 이상을 해내며 구멍을 최소화</b>한 것이 우승의 진짜 비결입니다.</p>
-
-    <div class="chart-container">
-      <canvas id="warChart"></canvas>
-    </div>
-    <p style="font-size: 0.75rem; color: #888; text-align: center;">▲ 막대가 위로 높을수록 강점, 아래로 깊을수록 약점</p>
+    <div class="badge">Chapter 2. 공헌도 분석</div>
+    <h1 class="title">누가 코트 위에서<br><span class="highlight">가장 많은 가치</span>를 만들었나</h1>
+    <p class="desc">선수들이 코트 위에서 만들어낸 모든 가치를 더한 <b>TPC(총공헌점수)</b>를 팀별로 합산했습니다. 순위와는 달리, 데이터상 가장 많은 득점 기여를 한 팀은 <span class="highlight">현대건설</span>이었습니다.</p>
+    <div class="chart-container"><canvas id="tpcChart"></canvas></div>
   </section>
 
   <section id="chapter3">
-    <div class="badge">Chapter 3. 포지션별 에이스</div>
-    <h1 class="title">데이터가 증명한<br>최고의 선수들</h1>
-    <p class="desc">각 포지션(역할)별로 가장 압도적인 활약을 펼친 TOP 3 선수를 소개합니다.</p>
-
-    <div class="player-tabs">
-      <button class="tab-btn active" onclick="showPos('OP')">공격수 (라이트)</button>
-      <button class="tab-btn" onclick="showPos('OH')">공수겸장 (레프트)</button>
-      <button class="tab-btn" onclick="showPos('MB')">블로커 (센터)</button>
-      <button class="tab-btn" onclick="showPos('L')">수비수 (리베로)</button>
-    </div>
-
-    <div class="info-box" id="posInfoBox">
-      </div>
-
-    <div id="playerList">
-      </div>
-  </section>
-
-  <section id="chapter4">
-    <div class="badge">Chapter 4. 가성비</div>
-    <h1 class="title">적은 연봉으로<br><span class="highlight">대박 친 선수</span>는?</h1>
-    <p class="desc">연봉이 높다고 무조건 팀에 기여하는 것은 아닙니다. 데이터로 찾아낸 <b>'올해 최고의 가성비 요정'</b>들을 확인하세요.</p>
-
-    <div class="chart-container">
-      <canvas id="salaryChart"></canvas>
-    </div>
-
-    <div class="player-card" style="margin-top:20px; border-color:var(--primary);">
-      <div class="p-info">
-        <h3>박은서 <span style="font-size:0.9rem; font-weight:normal; color:#888;">페퍼저축은행</span></h3>
-        <p>연봉 5천만 원으로 8억 원어치 활약을?</p>
-      </div>
-      <div class="p-stats">
-        <div class="stat-col"><div class="stat-val">0.5억</div><div class="stat-lbl">연봉</div></div>
-        <div class="stat-col"><div class="stat-val main">8.22</div><div class="stat-lbl">승리기여도(WAR)</div></div>
-        <div class="stat-col"><div class="stat-val">1위</div><div class="stat-lbl">가성비 순위</div></div>
-      </div>
-    </div>
+    <div class="badge">Chapter 3. 포지션별 랭킹</div>
+    <h1 class="title">각 포지션별로<br><span class="highlight-red">가장 압도적인 활약</span>을<br>펼친 선수</h1>
+    <p class="desc">포지션별 핵심지표와 연봉을 한눈에 볼 수 있는 좌표 그래프와 함께 상위 5인의 에이스들을 조명합니다.</p>
+    
+    <div id="positionsWrapper"></div>
   </section>
 
   <footer>
-    <div style="font-family:'Poppins'; font-size:1.2rem; font-weight:900; color:#555; margin-bottom:5px;">V-LEAGUE DATA</div>
-    <p>2025-26 정규리그 데이터 리포트</p>
+    <div style="font-weight:800; font-size:1.1rem; color:#111827; margin-bottom:5px;">V-LEAGUE DATA REPORT</div>
+    <p>2025-26 정규리그 TPC 데이터 분석</p>
   </footer>
 </div>
 
 <script>
-// =============== DATA (축약 및 단순화) ===============
-const DATA = {
-  standings: [
-    {rank:1, team:"한국도로공사", pts:69, w:24, l:12},
-    {rank:2, team:"현대건설", pts:65, w:22, l:14},
-    {rank:3, team:"GS칼텍스", pts:57, w:19, l:17},
-    {rank:4, team:"흥국생명", pts:57, w:19, l:17},
-    {rank:5, team:"IBK기업은행", pts:57, w:18, l:18}
-  ],
-  teamWAR: [
-    {team:"현대건설", pos:84.7, neg:-12.0},
-    {team:"GS칼텍스", pos:71.0, neg:-0.1},
-    {team:"한국도로공사", pos:68.2, neg:-3.0},
-    {team:"IBK기업은행", pos:66.5, neg:-2.5},
-    {team:"흥국생명", pos:61.2, neg:-4.3}
-  ],
-  posInfo: {
-    OP: { title: "팀의 확실한 해결사", desc: "공격에 전념하는 포지션입니다. 득점력과 공격 성공률이 가장 중요합니다." },
-    OH: { title: "공격과 수비를 동시에", desc: "스파이크도 때리고, 상대방 서브도 받아내야 하는 가장 바쁜 올라운더입니다." },
-    MB: { title: "네트 앞의 통곡의 벽", desc: "상대 공격을 블로킹으로 막아내고, 기습적인 속공을 때리는 장신 선수들입니다." },
-    L:  { title: "몸을 날리는 수비 요정", desc: "공격은 할 수 없지만, 코트 바닥에 떨어지는 공을 건져내는 수비 전담 선수입니다." }
-  },
-  players: {
-    OP: [
-      {name:"실바", team:"GS칼텍스", war:21.0, s1:"1,083", l1:"득점", s2:"47%", l2:"성공률"},
-      {name:"모마", team:"한국도로공사", war:18.8, s1:"948", l1:"득점", s2:"45%", l2:"성공률"},
-      {name:"조이", team:"페퍼저축은행", war:17.8, s1:"880", l1:"득점", s2:"47%", l2:"성공률"}
-    ],
-    OH: [
-      {name:"야우치", team:"현대건설", war:18.6, s1:"376", l1:"공격성공", s2:"30%", l2:"리시브"},
-      {name:"강소휘", team:"한국도로공사", war:17.8, s1:"371", l1:"공격성공", s2:"29%", l2:"리시브"},
-      {name:"유서연", team:"GS칼텍스", war:13.8, s1:"338", l1:"공격성공", s2:"26%", l2:"리시브"}
-    ],
-    MB: [
-      {name:"양효진", team:"현대건설", war:14.5, s1:"108", l1:"블로킹", s2:"145", l2:"속공"},
-      {name:"시마무라", team:"페퍼저축은행", war:11.8, s1:"67", l1:"블로킹", s2:"129", l2:"속공"},
-      {name:"최정민", team:"IBK기업은행", war:11.1, s1:"83", l1:"블로킹", s2:"64", l2:"속공"}
-    ],
-    L: [
-      {name:"문정원", team:"한국도로공사", war:11.6, s1:"440", l1:"디그(수비)", s2:"49%", l2:"리시브효율"},
-      {name:"한다혜", team:"페퍼저축은행", war:9.6, s1:"403", l1:"디그(수비)", s2:"36%", l2:"리시브효율"},
-      {name:"김연견", team:"현대건설", war:9.1, s1:"356", l1:"디그(수비)", s2:"36%", l2:"리시브효율"}
-    ]
-  },
-  salary: [
-    {x:8.0, y:17.8, name:"강소휘 (8억)"}, {x:8.0, y:14.5, name:"양효진 (8억)"},
-    {x:0.5, y:8.2, name:"박은서 (0.5억, 가성비갑!)"}, {x:6.5, y:7.1, name:"정지윤 (6.5억)"},
-    {x:4.0, y:21.0, name:"실바 (4억)"}, {x:1.2, y:-8.1, name:"나현수 (1.2억, 부진)"}
-  ]
+const LOGOS = {
+  "GS칼텍스": "https://cdn.kovo.co.kr/emblems/kixx.svg",
+  "한국도로공사": "https://cdn.kovo.co.kr/emblems/hipass.svg",
+  "페퍼저축은행": "https://cdn.kovo.co.kr/emblems/aipeppers.svg",
+  "IBK기업은행": "https://cdn.kovo.co.kr/emblems/altos.svg",
+  "흥국생명": "https://cdn.kovo.co.kr/emblems/pinkspiders.svg",
+  "현대건설": "https://cdn.kovo.co.kr/emblems/hillstate.svg",
+  "정관장": "https://cdn.kovo.co.kr/emblems/redsparks.svg"
 };
 
-// =============== INIT FUNCTIONS ===============
-Chart.defaults.color = '#8E8E93';
-Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
+const DATA = {
+  standings: [
+    {rank:1, team:"한국도로공사", pts:69}, {rank:2, team:"현대건설", pts:65},
+    {rank:3, team:"GS칼텍스", pts:57}, {rank:4, team:"흥국생명", pts:57},
+    {rank:5, team:"IBK기업은행", pts:57}, {rank:6, team:"페퍼저축은행", pts:47},
+    {rank:7, team:"정관장", pts:26}
+  ],
+  teamTPC: [
+    {team:"현대건설", tpc:2682.2}, {team:"한국도로공사", tpc:2572.3},
+    {team:"IBK기업은행", tpc:2472.2}, {team:"GS칼텍스", tpc:2377.4},
+    {team:"흥국생명", tpc:2294.3}, {team:"페퍼저축은행", tpc:2115.3},
+    {team:"정관장", tpc:1900.3}
+  ],
+  posInfo: [
+    { id: "OP", title: "아포짓 스파이커 (OP)", desc: "팀의 확실한 해결사. (X:연봉, Y:득점)" },
+    { id: "OH", title: "아웃사이드 히터 (OH)", desc: "공수 밸런스의 완성자. (X:연봉, Y:득점)" },
+    { id: "MB", title: "미들 블로커 (MB)", desc: "네트 앞의 통곡의 벽. (X:연봉, Y:블로킹)" },
+    { id: "L", title: "리베로 (L)", desc: "몸을 날리는 수비 요정. (X:연봉, Y:디그)" }
+  ],
+  players: {
+    "OP": [
+      {name: "실바", team: "GS칼텍스", tpc: 718.4, salary: 4.05, code: "1000345", val1: 1083, lbl1: "득점", val2: 47.3, lbl2: "성공률(%)"},
+      {name: "모마", team: "한국도로공사", tpc: 670.8, salary: 4.05, code: "1000170", val1: 948, lbl1: "득점", val2: 44.8, lbl2: "성공률(%)"},
+      {name: "빅토리아", team: "IBK기업은행", tpc: 624.5, salary: 3.38, code: "1000425", val1: 918, lbl1: "득점", val2: 42.3, lbl2: "성공률(%)"},
+      {name: "조이", team: "페퍼저축은행", tpc: 606.4, salary: 3.38, code: "1000536", val1: 880, lbl1: "득점", val2: 47.3, lbl2: "성공률(%)"},
+      {name: "레베카", team: "흥국생명", tpc: 560.7, salary: 3.38, code: "1000149", val1: 746, lbl1: "득점", val2: 41.2, lbl2: "성공률(%)"}
+    ],
+    "OH": [
+      {name: "야우치", team: "현대건설", tpc: 459.1, salary: 2.02, code: "1000542", val1: 466, lbl1: "득점", val2: 38.0, lbl2: "리시브효율(%)"},
+      {name: "강소휘", team: "한국도로공사", tpc: 430.3, salary: 8.0, code: "0001704", val1: 421, lbl1: "득점", val2: 32.9, lbl2: "리시브효율(%)"},
+      {name: "유서연", team: "GS칼텍스", tpc: 357.5, salary: 4.0, code: "0001853", val1: 377, lbl1: "득점", val2: 35.5, lbl2: "리시브효율(%)"},
+      {name: "육서영", team: "IBK기업은행", tpc: 326.7, salary: 3.0, code: "0002217", val1: 380, lbl1: "득점", val2: 26.4, lbl2: "리시브효율(%)"},
+      {name: "김다은", team: "흥국생명", tpc: 249.4, salary: 0.75, code: "0002224", val1: 294, lbl1: "득점", val2: 21.9, lbl2: "리시브효율(%)"}
+    ],
+    "MB": [
+      {name: "양효진", team: "현대건설", tpc: 390.3, salary: 8.0, code: "0000741", val1: 108, lbl1: "블로킹", val2: 145, lbl2: "속공성공"},
+      {name: "시마무라", team: "페퍼저축은행", tpc: 333.0, salary: 2.02, code: "1000537", val1: 67, lbl1: "블로킹", val2: 129, lbl2: "속공성공"},
+      {name: "최정민", team: "IBK기업은행", tpc: 321.9, salary: 1.2, code: "1000044", val1: 83, lbl1: "블로킹", val2: 64, lbl2: "속공성공"},
+      {name: "박은진", team: "정관장", tpc: 228.5, salary: 3.8, code: "0002117", val1: 80, lbl1: "블로킹", val2: 59, lbl2: "속공성공"},
+      {name: "피치", team: "흥국생명", tpc: 224.2, salary: 2.3, code: "1000438", val1: 85, lbl1: "블로킹", val2: 92, lbl2: "속공성공"}
+    ],
+    "L": [
+      {name: "문정원", team: "한국도로공사", tpc: 241.4, salary: 2.5, code: "0001271", val1: 697, lbl1: "디그성공", val2: 49.3, lbl2: "리시브효율(%)"},
+      {name: "한다혜", team: "페퍼저축은행", tpc: 200.6, salary: 2.9, code: "0001494", val1: 609, lbl1: "디그성공", val2: 35.9, lbl2: "리시브효율(%)"},
+      {name: "김연견", team: "현대건설", tpc: 192.1, salary: 4.0, code: "0001267", val1: 681, lbl1: "디그성공", val2: 35.7, lbl2: "리시브효율(%)"},
+      {name: "임명옥", "team: "IBK기업은행", tpc: 175.2, salary: 1.5, code: "0000405", val1: 589, lbl1: "디그성공", val2: 45.3, lbl2: "리시브효율(%)"},
+      {name: "노란", team: "정관장", tpc: 163.3, salary: 2.0, code: "0001407", val1: 642, lbl1: "디그성공", val2: 29.4, lbl2: "리시브효율(%)"}
+    ]
+  }
+};
 
-function initStandings() {
-  const html = DATA.standings.map((t, i) => `
+// 기본 폰트 설정
+Chart.defaults.font.family = "'Pretendard', sans-serif";
+Chart.defaults.color = '#6B7280';
+
+window.onload = () => {
+  // 1. 순위표 렌더링
+  const standingsHtml = DATA.standings.map((t, i) => `
     <div class="team-row ${i === 0 ? 'rank-1' : ''}">
       <div class="rank-num">${t.rank}</div>
+      <img src="${LOGOS[t.team]}" class="team-logo" alt="${t.team}">
       <div class="team-name">${t.team}</div>
       <div class="team-pts">${t.pts} <span style="font-size:0.7rem; font-weight:normal; color:#888;">점</span></div>
     </div>
   `).join('');
-  document.getElementById('standingsList').innerHTML = html;
-}
+  document.getElementById('standingsList').innerHTML = standingsHtml;
 
-function initTeamWARChart() {
-  new Chart(document.getElementById('warChart'), {
+  // 2. 팀 TPC 바 차트 렌더링
+  new Chart(document.getElementById('tpcChart'), {
     type: 'bar',
     data: {
-      labels: DATA.teamWAR.map(d => d.team),
-      datasets: [
-        { label: '잘한 점수(+)', data: DATA.teamWAR.map(d => d.pos), backgroundColor: '#0A84FF', borderRadius: 4 },
-        { label: '깎아먹은 점수(-)', data: DATA.teamWAR.map(d => d.neg), backgroundColor: '#FF3B30', borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
-      scales: {
-        x: { stacked: true, grid: { display: false } },
-        y: { stacked: true, grid: { color: 'rgba(255,255,255,0.1)' } }
-      }
-    }
-  });
-}
-
-function showPos(pos) {
-  // 탭 스타일 변경
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-
-  // 설명 변경
-  const info = DATA.posInfo[pos];
-  document.getElementById('posInfoBox').innerHTML = `
-    <h4>💡 ${info.title}</h4>
-    <p>${info.desc}</p>
-  `;
-
-  // 선수 리스트 렌더링
-  const html = DATA.players[pos].map((p, i) => `
-    <div class="player-card">
-      <div class="p-rank ${i === 0 ? 'gold' : ''}">${i+1}</div>
-      <div class="p-info">
-        <h3>${p.name}</h3>
-        <p>${p.team}</p>
-      </div>
-      <div class="p-stats">
-        <div class="stat-col"><div class="stat-val main">${p.war.toFixed(1)}</div><div class="stat-lbl">승리기여도</div></div>
-        <div class="stat-col"><div class="stat-val">${p.s1}</div><div class="stat-lbl">${p.l1}</div></div>
-        <div class="stat-col"><div class="stat-val">${p.s2}</div><div class="stat-lbl">${p.l2}</div></div>
-      </div>
-    </div>
-  `).join('');
-  document.getElementById('playerList').innerHTML = html;
-}
-
-function initSalaryChart() {
-  new Chart(document.getElementById('salaryChart'), {
-    type: 'scatter',
-    data: {
+      labels: DATA.teamTPC.map(d => d.team),
       datasets: [{
-        data: DATA.salary,
-        backgroundColor: '#FF6B66',
-        pointRadius: 6
+        label: 'TPC (총공헌점수)',
+        data: DATA.teamTPC.map(d => d.tpc),
+        backgroundColor: '#60A5FA',
+        borderRadius: 4
       }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ctx.raw.name } }
-      },
+      plugins: { legend: { display: false } },
       scales: {
-        x: { title: { display: true, text: '연봉 (억원)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y: { title: { display: true, text: '팀 기여도 (WAR)' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { grid: { color: '#E5E7EB' } }
       }
     }
   });
-}
 
-window.onload = () => {
-  initStandings();
-  initTeamWARChart();
-  // 초기 탭 세팅 (라이트 강제 클릭 이벤트를 줄 수 없으므로 직접 호출)
-  document.getElementById('posInfoBox').innerHTML = `<h4>💡 ${DATA.posInfo.OP.title}</h4><p>${DATA.posInfo.OP.desc}</p>`;
-  showPos('OP'); 
-  // 첫 번째 버튼을 active 상태로 만듦
-  document.querySelector('.tab-btn').classList.add('active');
-  initSalaryChart();
+  // 3. 포지션별 렌더링
+  const posWrapper = document.getElementById('positionsWrapper');
+  let posHtml = '';
+
+  DATA.posInfo.forEach(info => {
+    const pData = DATA.players[info.id];
+    const topPlayer = pData[0];
+    const runners = pData.slice(1);
+
+    posHtml += `
+      <div class="pos-section">
+        <div class="pos-header">
+          <div class="pos-title">${info.title}</div>
+        </div>
+        <p style="font-size:0.85rem; color:#6B7280; margin-bottom:15px;">${info.desc}</p>
+        
+        <div class="chart-container" style="height:200px;">
+          <canvas id="chart-${info.id}"></canvas>
+        </div>
+
+        <div class="top-player-card">
+          <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${topPlayer.code}.webp" class="player-photo">
+          <div class="player-info">
+            <div class="rank-badge">TPC 1위</div>
+            <h3>${topPlayer.name}</h3>
+            <p>${topPlayer.team} · 연봉 ${topPlayer.salary}억</p>
+            <div class="p-stats">
+              <div class="stat-col"><div class="stat-val main">${topPlayer.tpc.toFixed(1)}</div><div class="stat-lbl">TPC</div></div>
+              <div class="stat-col"><div class="stat-val">${topPlayer.val1}</div><div class="stat-lbl">${topPlayer.lbl1}</div></div>
+              <div class="stat-col"><div class="stat-val">${topPlayer.val2}</div><div class="stat-lbl">${topPlayer.lbl2}</div></div>
+            </div>
+          </div>
+        </div>
+
+        ${runners.map((p, i) => `
+          <div class="runner-up-row">
+            <div class="ru-rank">${i+2}</div>
+            <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="ru-photo">
+            <div class="ru-info">
+              <h4>${p.name}</h4>
+              <span>${p.team} · ${p.salary}억</span>
+            </div>
+            <div class="ru-score">${p.val1}<span>${p.lbl1}</span></div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  });
+  posWrapper.innerHTML = posHtml;
+
+  // 포지션별 산점도 차트 그리기
+  DATA.posInfo.forEach(info => {
+    const pData = DATA.players[info.id];
+    const chartData = pData.map(p => ({
+        x: p.salary, y: p.val1, name: p.name, team: p.team
+    }));
+
+    new Chart(document.getElementById(`chart-${info.id}`), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                data: chartData,
+                backgroundColor: '#2563EB',
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { 
+                    callbacks: { 
+                        label: ctx => `${ctx.raw.name} (${ctx.raw.team}) - 연봉 ${ctx.raw.x}억 / ${pData[0].lbl1}: ${ctx.raw.y}` 
+                    } 
+                }
+            },
+            scales: {
+                x: { title: { display: true, text: '연봉 (억원)' }, grid: { color: '#E5E7EB' } },
+                y: { title: { display: true, text: pData[0].lbl1 }, grid: { color: '#E5E7EB' } }
+            }
+        }
+    });
+  });
 };
 </script>
 </body>
