@@ -6,6 +6,7 @@
 <title>V-League 2025-26 | 정규리그 데이터 리포트</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root {
     --bg-main: #E2E8F0;
@@ -47,10 +48,11 @@
     border-radius: 20px; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
   }
-  #chapter1 { background-color: #F1F5F9; } /* 슬레이트(그레이) 톤 */
-  #chapter2 { background-color: #EEF2FF; } /* 연한 파스텔 블루 */
-  #chapter3 { background-color: #FDF4FF; } /* 연한 파스텔 퍼플/핑크 */
-  #chapter4 { background-color: #FFFBEB; } /* 연한 파스텔 옐로우 */
+  #chapter1 { background-color: #F1F5F9; } /* 슬레이트 톤 */
+  #chapter2 { background-color: #EEF2FF; } /* 파스텔 블루 */
+  #chapter3 { background-color: #FDF4FF; } /* 파스텔 핑크 */
+  #chapter4 { background-color: #FFFBEB; } /* 파스텔 옐로우 */
+  #chapter5 { background-color: #ECFDF5; } /* 파스텔 민트/그린 */
   
   .badge {
     display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.05);
@@ -88,18 +90,20 @@
   .tpc-total { font-weight: 800; color: #3B82F6; font-size: 1.05rem; }
   .tpc-stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center; }
   .tpc-stat-item { background: #F8FAFC; padding: 8px 4px; border-radius: 8px; }
-  .tpc-stat-lbl { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
+  .tpc-stat-lbl { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; word-break: keep-all; }
   .tpc-stat-val { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
+  .tpc-stat-val.negative { color: #E11D48; }
 
   /* 챕터 3 */
   .pos-section { margin-bottom: 50px; background: rgba(255,255,255,0.4); padding: 20px 15px; border-radius: 16px; }
   .pos-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
   .top-player-card {
     background: var(--bg-card); border-radius: 16px; padding: 20px; margin-bottom: 12px;
-    display: flex; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   }
+  .player-flex { display: flex; align-items: center; margin-bottom: 15px; }
   .player-photo {
-    width: 70px; height: 70px; border-radius: 50%;
+    width: 65px; height: 65px; border-radius: 50%;
     background: #F1F5F9; object-fit: cover; margin-right: 15px;
   }
   .player-info { flex: 1; }
@@ -108,38 +112,39 @@
     font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; margin-bottom: 6px;
   }
   .player-info h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 2px; }
-  .player-info p { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
-  .p-stats { display: flex; gap: 15px; }
-  .stat-col { display: flex; flex-direction: column; }
+  .player-info p { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+  
+  /* 통일된 스탯 표시 박스 */
+  .p-stats { 
+    display: flex; gap: 8px; justify-content: space-between; 
+    background: #F8FAFC; padding: 12px; border-radius: 10px; border: 1px solid #E2E8F0;
+  }
+  .stat-col { display: flex; flex-direction: column; flex: 1; text-align: center; }
   .stat-val { font-size: 1.05rem; font-weight: 800; color: var(--text-main); }
   .stat-val.main { color: #3B82F6; }
-  .stat-lbl { font-size: 0.65rem; color: var(--text-muted); }
+  .stat-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
 
   .runner-up-row {
-    display: flex; align-items: center; background: var(--bg-card);
-    padding: 10px 15px; border-radius: 10px; margin-bottom: 8px;
+    background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   }
-  .ru-rank { width: 20px; font-weight: 800; font-size: 0.9rem; color: var(--text-muted); }
-  .ru-photo { width: 36px; height: 36px; border-radius: 50%; background: #F3F4F6; margin-right: 12px; object-fit: cover; }
-  .ru-info { flex: 1; }
-  .ru-info h4 { font-size: 0.95rem; font-weight: 800; margin-bottom: 2px; }
-  .ru-info span { font-size: 0.7rem; color: var(--text-muted); }
-  .ru-score { font-weight: 800; font-size: 0.9rem; color: #3B82F6; text-align: right;}
-  .ru-score span { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: normal; }
+  .ru-rank { width: 25px; font-weight: 800; font-size: 1rem; color: var(--text-muted); }
+  .ru-photo { width: 45px; height: 45px; border-radius: 50%; background: #F3F4F6; margin-right: 12px; object-fit: cover; }
 
-  /* 챕터 4 Best 7 */
-  .best7-grid { display: flex; flex-direction: column; gap: 10px; }
-  .best7-card {
+  /* 챕터 4 & 5 리스트 카드 */
+  .list-grid { display: flex; flex-direction: column; gap: 10px; }
+  .list-card {
     display: flex; align-items: center; background: var(--bg-card);
     padding: 15px; border-radius: 12px; position: relative; overflow: hidden;
   }
-  .best7-pos {
+  .list-card-bg-txt {
     position: absolute; right: -10px; bottom: -15px;
     font-size: 4rem; font-weight: 900; color: rgba(0,0,0,0.03);
-    font-style: italic; line-height: 1;
+    font-style: italic; line-height: 1; pointer-events: none;
   }
 
   footer { text-align: center; padding: 40px 20px; font-size: 0.85rem; color: var(--text-muted); }
+  .creator { margin-top: 15px; font-weight: 800; color: #475569; font-size: 0.9rem; }
 </style>
 </head>
 <body>
@@ -162,14 +167,14 @@
     <div class="chart-container"><canvas id="tpcChart"></canvas></div>
 
     <div class="tpc-breakdown-title">📊 팀별 5대 핵심 지표 분석</div>
-    <p class="desc" style="font-size:0.8rem; margin-bottom: 15px;">각 팀의 TPC가 <b>공격, 블로킹, 서브, 수비(디그+리시브), 세트</b>에서 각각 몇 점씩 발생했는지 분해한 데이터입니다. (범실은 마이너스 점수 적용)</p>
+    <p class="desc" style="font-size:0.8rem; margin-bottom: 15px;">각 팀이 기록한 핵심 누적 수치입니다. 범실 합계는 마이너스 요인으로 작용합니다.</p>
     <div id="tpcBreakdownList"></div>
   </section>
 
   <section id="chapter3">
     <div class="badge">Chapter 3. 포지션별 랭킹</div>
-    <h1 class="title">포지션별 최상위<br><span class="highlight">TPC 순위 (Top 7)</span></h1>
-    <p class="desc">각 포지션별로 가장 압도적인 활약을 펼친 7명의 선수를 조명합니다. 그래프 버블 크기는 <b>'연봉'</b>을 의미하며, 해당 선수의 팀 고유 색상이 적용되었습니다.</p>
+    <h1 class="title">포지션별 최상위<br><span style="color:#D946EF;">TPC 순위 (Top 7)</span></h1>
+    <p class="desc">각 포지션별로 가장 압도적인 활약을 펼친 선수를 조명합니다. 그래프 버블 크기는 <b>'연봉'</b>을 의미하며, 선수 이름이 차트에 표시됩니다.</p>
     
     <div id="positionsWrapper"></div>
   </section>
@@ -179,16 +184,27 @@
     <h1 class="title">데이터가 증명한<br><span style="color:#D97706;">25-26 TPC Best 7</span></h1>
     <p class="desc">수많은 기록과 공헌도 점수를 바탕으로 선정한 올 시즌 포지션별 완벽한 드림팀입니다. (OP 1명, OH 2명, MB 2명, L 1명, S 1명)</p>
     
-    <div class="best7-grid" id="best7List"></div>
+    <div class="list-grid" id="best7List"></div>
+  </section>
+
+  <section id="chapter5">
+    <div class="badge">Chapter 5. 가성비</div>
+    <h1 class="title">적은 연봉으로<br><span style="color:#10B981;">팀을 구한 영웅들</span></h1>
+    <p class="desc">연봉 1억 원당 만들어낸 TPC(총공헌점수)가 가장 높은 <b>'가성비 최고 효율'</b> 선수 Top 5 명단입니다.</p>
+    
+    <div class="list-grid" id="effList"></div>
   </section>
 
   <footer>
     <div style="font-weight:800; font-size:1.1rem; color:#1E293B; margin-bottom:5px;">V-LEAGUE DATA REPORT</div>
     <p>2025-26 정규리그 TPC 데이터 분석</p>
+    <div class="creator">창작자 from237</div>
   </footer>
 </div>
 
 <script>
+Chart.register(ChartDataLabels); // DataLabels 플러그인 활성화
+
 document.addEventListener('DOMContentLoaded', () => {
   const LOGOS = {
     "GS칼텍스": "https://cdn.kovo.co.kr/emblems/kixx.svg",
@@ -200,15 +216,14 @@ document.addEventListener('DOMContentLoaded', () => {
     "정관장": "https://cdn.kovo.co.kr/emblems/redsparks.svg"
   };
 
-  // 팀별 파스텔 톤 색상 (요청사항 반영)
   const TEAM_COLORS = {
-    "현대건설": "rgba(253, 224, 71, 0.9)",    // 노랑
-    "한국도로공사": "rgba(71, 85, 105, 0.8)",  // 남색(파스텔 슬레이트/네이비)
-    "IBK기업은행": "rgba(125, 211, 252, 0.9)", // 하늘색
-    "GS칼텍스": "rgba(110, 231, 183, 0.9)",    // 민트색
-    "흥국생명": "rgba(244, 114, 182, 0.8)",    // 핑크색
-    "페퍼저축은행": "rgba(248, 113, 113, 0.9)",// 빨간색(파스텔 레드)
-    "정관장": "rgba(180, 83, 9, 0.8)"          // 적갈색(마룬/브라운 톤)
+    "현대건설": "rgba(253, 224, 71, 0.9)",    
+    "한국도로공사": "rgba(71, 85, 105, 0.8)",  
+    "IBK기업은행": "rgba(125, 211, 252, 0.9)", 
+    "GS칼텍스": "rgba(110, 231, 183, 0.9)",    
+    "흥국생명": "rgba(244, 114, 182, 0.8)",    
+    "페퍼저축은행": "rgba(248, 113, 113, 0.9)",
+    "정관장": "rgba(180, 83, 9, 0.8)"          
   };
 
   const DATA = {
@@ -218,14 +233,22 @@ document.addEventListener('DOMContentLoaded', () => {
       {rank:5, team:"IBK기업은행", pts:57}, {rank:6, team:"페퍼저축은행", pts:47},
       {rank:7, team:"정관장", pts:26}
     ],
-    teamTPC: [
-      {team:"현대건설", tpc:2682.2, atk:1419.0, blk:157.5, srv:-60.0, def:823.1, set:342.6},
-      {team:"한국도로공사", tpc:2572.3, atk:1472.0, blk:30.5, srv:-96.0, def:799.0, set:366.8},
-      {team:"IBK기업은행", tpc:2472.2, atk:1347.0, blk:112.0, srv:-76.0, def:741.8, set:347.4},
-      {team:"GS칼텍스", tpc:2377.4, atk:1341.0, blk:92.5, srv:-102.0, def:696.3, set:349.6},
-      {team:"흥국생명", tpc:2294.3, atk:1361.0, blk:40.5, srv:-108.0, def:668.6, set:332.2},
-      {team:"페퍼저축은행", tpc:2115.3, atk:1245.0, blk:89.0, srv:-144.0, def:594.5, set:330.8},
-      {team:"정관장", tpc:1900.3, atk:1030.0, blk:71.0, srv:-94.0, def:608.3, set:285.0}
+    // 5대 핵심 지표: 공격성공, 블로킹성공, 리시브성공(정확), 서브성공, 범실합계
+    teamStats: [
+      {team: "현대건설", tpc: 2682.2, atk: 2043, blk: 366, rec: 1103, srv: 172, err: 1553}, 
+      {team: "한국도로공사", tpc: 2572.3, atk: 2095, blk: 316, rec: 1168, srv: 153, err: 1588}, 
+      {team: "IBK기업은행", tpc: 2472.2, atk: 2017, blk: 307, rec: 950, srv: 163, err: 1485}, 
+      {team: "GS칼텍스", tpc: 2377.4, atk: 2023, blk: 300, rec: 1041, srv: 158, err: 1477}, 
+      {team: "흥국생명", tpc: 2294.3, atk: 1908, blk: 308, rec: 884, srv: 137, err: 1526}, 
+      {team: "페퍼저축은행", tpc: 2115.3, atk: 1898, blk: 302, rec: 759, srv: 137, err: 1533}, 
+      {team: "정관장", tpc: 1900.3, atk: 1761, blk: 287, rec: 857, srv: 136, err: 1592}
+    ],
+    efficiency: [
+      {name: "박은서", team: "페퍼저축은행", code: "1000131", tpc: 239.4, salary: 0.5, eff: 478.8, pos: "OH"}, 
+      {name: "최서현", team: "정관장", code: "1000316", tpc: 236.2, salary: 0.5, eff: 472.4, pos: "S"}, 
+      {name: "박은서", team: "IBK기업은행", code: "0002131", tpc: 230.8, salary: 0.5, eff: 461.6, pos: "S"}, 
+      {name: "이주아", team: "IBK기업은행", code: "0002130", tpc: 218.6, salary: 0.55, eff: 397.4, pos: "MB"}, 
+      {name: "김다은", team: "흥국생명", code: "0002224", tpc: 249.4, salary: 0.75, eff: 332.5, pos: "OH"}
     ],
     posInfo: [
       { id: "OP", title: "아포짓 스파이커 (OP)", desc: "X: 공격성공수, Y: 공격성공률, 버블: 연봉" },
@@ -234,8 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: "L", title: "리베로 (L)", desc: "X: 리시브성공, Y: 디그성공, 버블: 연봉" },
       { id: "S", title: "세터 (S)", desc: "X: 세트시도수, Y: 세트성공률, 버블: 연봉" }
     ],
-    // 파이썬으로 추출한 포지션별 Top 7 데이터 
-    players: {"OP": [{"name": "실바", "team": "GS칼텍스", "code": "1000345", "tpc": 718.4, "salary": 4.05, "x": 984, "xlbl": "공격성공", "y": 47.33, "ylbl": "공격성공률(%)", "val1": 1083, "lbl1": "득점", "val2": 47.33, "lbl2": "공격성공률(%)"}, {"name": "모마", "team": "한국도로공사", "code": "1000170", "tpc": 670.8, "salary": 4.05, "x": 879, "xlbl": "공격성공", "y": 44.82, "ylbl": "공격성공률(%)", "val1": 948, "lbl1": "득점", "val2": 44.82, "lbl2": "공격성공률(%)"}, {"name": "빅토리아", "team": "IBK기업은행", "code": "1000425", "tpc": 624.5, "salary": 3.38, "x": 835, "xlbl": "공격성공", "y": 42.3, "ylbl": "공격성공률(%)", "val1": 918, "lbl1": "득점", "val2": 42.3, "lbl2": "공격성공률(%)"}, {"name": "조이", "team": "페퍼저축은행", "code": "1000536", "tpc": 606.4, "salary": 3.38, "x": 782, "xlbl": "공격성공", "y": 47.25, "ylbl": "공격성공률(%)", "val1": 880, "lbl1": "득점", "val2": 47.25, "lbl2": "공격성공률(%)"}, {"name": "레베카", "team": "흥국생명", "code": "1000149", "tpc": 560.7, "salary": 3.38, "x": 694, "xlbl": "공격성공", "y": 41.19, "ylbl": "공격성공률(%)", "val1": 746, "lbl1": "득점", "val2": 41.19, "lbl2": "공격성공률(%)"}, {"name": "카리", "team": "현대건설", "code": "1000543", "tpc": 550.5, "salary": 3.38, "x": 645, "xlbl": "공격성공", "y": 39.04, "ylbl": "공격성공률(%)", "val1": 749, "lbl1": "득점", "val2": 39.04, "lbl2": "공격성공률(%)"}, {"name": "자네트", "team": "정관장", "code": "1000538", "tpc": 395.5, "salary": 3.38, "x": 513, "xlbl": "공격성공", "y": 37.55, "ylbl": "공격성공률(%)", "val1": 586, "lbl1": "득점", "val2": 37.55, "lbl2": "공격성공률(%)"}], "OH": [{"name": "야우치", "team": "현대건설", "code": "1000542", "tpc": 459.1, "salary": 2.02, "x": 466, "xlbl": "득점", "y": 357, "ylbl": "리시브정확", "val1": 466, "lbl1": "득점", "val2": 37.97, "lbl2": "리시브효율(%)"}, {"name": "강소휘", "team": "한국도로공사", "code": "0001704", "tpc": 430.3, "salary": 8.0, "x": 421, "xlbl": "득점", "y": 300, "ylbl": "리시브정확", "val1": 421, "lbl1": "득점", "val2": 32.89, "lbl2": "리시브효율(%)"}, {"name": "유서연", "team": "GS칼텍스", "code": "0001853", "tpc": 357.5, "salary": 4.0, "x": 377, "xlbl": "득점", "y": 293, "ylbl": "리시브정확", "val1": 377, "lbl1": "득점", "val2": 35.51, "lbl2": "리시브효율(%)"}, {"name": "육서영", "team": "IBK기업은행", "code": "0002217", "tpc": 326.7, "salary": 3.0, "x": 380, "xlbl": "득점", "y": 314, "ylbl": "리시브정확", "val1": 380, "lbl1": "득점", "val2": 26.43, "lbl2": "리시브효율(%)"}, {"name": "김다은", "team": "흥국생명", "code": "0002224", "tpc": 249.4, "salary": 0.75, "x": 294, "xlbl": "득점", "y": 216, "ylbl": "리시브정확", "val1": 294, "lbl1": "득점", "val2": 21.89, "lbl2": "리시브효율(%)"}, {"name": "레이나", "team": "GS칼텍스", "code": "1000322", "tpc": 246.9, "salary": 2.02, "x": 302, "xlbl": "득점", "y": 188, "ylbl": "리시브정확", "val1": 302, "lbl1": "득점", "val2": 27.21, "lbl2": "리시브효율(%)"}, {"name": "박혜민", "team": "정관장", "code": "0002121", "tpc": 246.8, "salary": 1.8, "x": 255, "xlbl": "득점", "y": 324, "ylbl": "리시브정확", "val1": 255, "lbl1": "득점", "val2": 25.86, "lbl2": "리시브효율(%)"}], "MB": [{"name": "양효진", "team": "현대건설", "code": "0000741", "tpc": 390.3, "salary": 8.0, "x": 108, "xlbl": "블로킹", "y": 460, "ylbl": "득점", "val1": 460, "lbl1": "득점", "val2": 108, "lbl2": "블로킹"}, {"name": "시마무라", "team": "페퍼저축은행", "code": "1000537", "tpc": 333.0, "salary": 2.02, "x": 67, "xlbl": "블로킹", "y": 431, "ylbl": "득점", "val1": 431, "lbl1": "득점", "val2": 67, "lbl2": "블로킹"}, {"name": "최정민", "team": "IBK기업은행", "code": "1000044", "tpc": 321.9, "salary": 1.2, "x": 83, "xlbl": "블로킹", "y": 385, "ylbl": "득점", "val1": 385, "lbl1": "득점", "val2": 83, "lbl2": "블로킹"}, {"name": "박은진", "team": "정관장", "code": "0002117", "tpc": 228.5, "salary": 3.8, "x": 80, "xlbl": "블로킹", "y": 315, "ylbl": "득점", "val1": 315, "lbl1": "득점", "val2": 80, "lbl2": "블로킹"}, {"name": "피치", "team": "흥국생명", "code": "1000438", "tpc": 224.2, "salary": 2.3, "x": 85, "xlbl": "블로킹", "y": 274, "ylbl": "득점", "val1": 274, "lbl1": "득점", "val2": 85, "lbl2": "블로킹"}, {"name": "이주아", "team": "IBK기업은행", "code": "0002130", "tpc": 218.6, "salary": 0.55, "x": 84, "xlbl": "블로킹", "y": 291, "ylbl": "득점", "val1": 291, "lbl1": "득점", "val2": 84, "lbl2": "블로킹"}, {"name": "김세빈", "team": "한국도로공사", "code": "1000312", "tpc": 193.6, "salary": 1.1, "x": 106, "xlbl": "블로킹", "y": 268, "ylbl": "득점", "val1": 268, "lbl1": "득점", "val2": 106, "lbl2": "블로킹"}], "L": [{"name": "문정원", "team": "한국도로공사", "code": "0001271", "tpc": 241.4, "salary": 2.5, "x": 364, "xlbl": "리시브성공", "y": 697, "ylbl": "디그성공", "val1": 697, "lbl1": "디그성공", "val2": 49.27, "lbl2": "리시브효율(%)"}, {"name": "한다혜", "team": "페퍼저축은행", "code": "0001494", "tpc": 200.6, "salary": 2.9, "x": 290, "xlbl": "리시브성공", "y": 609, "ylbl": "디그성공", "val1": 609, "lbl1": "디그성공", "val2": 35.89, "lbl2": "리시브효율(%)"}, {"name": "김연견", "team": "현대건설", "code": "0001267", "tpc": 192.1, "salary": 4.0, "x": 209, "xlbl": "리시브성공", "y": 681, "ylbl": "디그성공", "val1": 681, "lbl1": "디그성공", "val2": 35.67, "lbl2": "리시브효율(%)"}, {"name": "임명옥", "team": "IBK기업은행", "code": "0000405", "tpc": 175.2, "salary": 1.5, "x": 220, "xlbl": "리시브성공", "y": 589, "ylbl": "디그성공", "val1": 589, "lbl1": "디그성공", "val2": 45.26, "lbl2": "리시브효율(%)"}, {"name": "노란", "team": "정관장", "code": "0001407", "tpc": 163.3, "salary": 2.0, "x": 191, "xlbl": "리시브성공", "y": 642, "ylbl": "디그성공", "val1": 642, "lbl1": "디그성공", "val2": 29.4, "lbl2": "리시브효율(%)"}, {"name": "한수진", "team": "GS칼텍스", "code": "0001964", "tpc": 152.3, "salary": 1.5, "x": 187, "xlbl": "리시브성공", "y": 515, "ylbl": "디그성공", "val1": 515, "lbl1": "디그성공", "val2": 36.71, "lbl2": "리시브효율(%)"}, {"name": "도수빈", "team": "흥국생명", "code": "0001854", "tpc": 99.5, "salary": 1.0, "x": 235, "xlbl": "리시브성공", "y": 229, "ylbl": "디그성공", "val1": 229, "lbl1": "디그성공", "val2": 35.07, "lbl2": "리시브효율(%)"}], "S": [{"name": "김다인", "team": "현대건설", "code": "0001981", "tpc": 366.5, "salary": 2.4, "x": 3721, "xlbl": "세트시도", "y": 67.86, "ylbl": "세트성공률(%)", "val1": 3721, "lbl1": "세트시도", "val2": 67.86, "lbl2": "세트성공률(%)"}, {"name": "이윤정", "team": "한국도로공사", "code": "1000160", "tpc": 301.7, "salary": 1.2, "x": 3214, "xlbl": "세트시도", "y": 60.95, "ylbl": "세트성공률(%)", "val1": 3214, "lbl1": "세트시도", "val2": 60.95, "lbl2": "세트성공률(%)"}, {"name": "김지원", "team": "GS칼텍스", "code": "1000051", "tpc": 268.8, "salary": 1.2, "x": 2809, "xlbl": "세트시도", "y": 55.65, "ylbl": "세트성공률(%)", "val1": 2809, "lbl1": "세트시도", "val2": 55.65, "lbl2": "세트성공률(%)"}, {"name": "최서현", "team": "정관장", "code": "1000316", "tpc": 236.2, "salary": 0.5, "x": 3050, "xlbl": "세트시도", "y": 60.35, "ylbl": "세트성공률(%)", "val1": 3050, "lbl1": "세트시도", "val2": 60.35, "lbl2": "세트성공률(%)"}, {"name": "박은서", "team": "IBK기업은행", "code": "0002131", "tpc": 230.8, "salary": 0.5, "x": 2714, "xlbl": "세트시도", "y": 49.82, "ylbl": "세트성공률(%)", "val1": 2714, "lbl1": "세트시도", "val2": 49.82, "lbl2": "세트성공률(%)"}, {"name": "박사랑", "team": "페퍼저축은행", "code": "1000130", "tpc": 223.8, "salary": 0.8, "x": 2190, "xlbl": "세트시도", "y": 44.19, "ylbl": "세트성공률(%)", "val1": 2190, "lbl1": "세트시도", "val2": 44.19, "lbl2": "세트성공률(%)"}, {"name": "이나연", "team": "흥국생명", "code": "0001209", "tpc": 157.0, "salary": 0.65, "x": 1975, "xlbl": "세트시도", "y": 38.19, "ylbl": "세트성공률(%)", "val1": 1975, "lbl1": "세트시도", "val2": 38.19, "lbl2": "세트성공률(%)"}], "Best7": [{"name": "실바", "team": "GS칼텍스", "code": "1000345", "tpc": 718.4, "salary": 4.05, "val1": 1083, "lbl1": "득점", "val2": 47.33, "lbl2": "공격성공률(%)", "pos_name": "OP"}, {"name": "야우치", "team": "현대건설", "code": "1000542", "tpc": 459.1, "salary": 2.02, "val1": 466, "lbl1": "득점", "val2": 37.97, "lbl2": "리시브효율(%)", "pos_name": "OH"}, {"name": "강소휘", "team": "한국도로공사", "code": "0001704", "tpc": 430.3, "salary": 8.0, "val1": 421, "lbl1": "득점", "val2": 32.89, "lbl2": "리시브효율(%)", "pos_name": "OH"}, {"name": "문정원", "team": "한국도로공사", "code": "0001271", "tpc": 241.4, "salary": 2.5, "val1": 697, "lbl1": "디그성공", "val2": 49.27, "lbl2": "리시브효율(%)", "pos_name": "L"}, {"name": "김다인", "team": "현대건설", "code": "0001981", "tpc": 366.5, "salary": 2.4, "val1": 3721, "lbl1": "세트시도", "val2": 67.86, "lbl2": "세트성공률(%)", "pos_name": "S"}, {"name": "양효진", "team": "현대건설", "code": "0000741", "tpc": 390.3, "salary": 8.0, "val1": 460, "lbl1": "득점", "val2": 108, "lbl2": "블로킹", "pos_name": "MB"}, {"name": "시마무라", "team": "페퍼저축은행", "code": "1000537", "tpc": 333.0, "salary": 2.02, "val1": 431, "lbl1": "득점", "val2": 67, "lbl2": "블로킹", "pos_name": "MB"}]}
+    players: {"OP": [{"name": "실바", "team": "GS칼텍스", "code": "1000345", "tpc": 718.4, "salary": 4.05, "x": 984, "xlbl": "공격성공", "y": 47.33, "ylbl": "공격성공률(%)", "val1": 1083, "lbl1": "득점", "val2": 47.33, "lbl2": "공격성공률(%)"}, {"name": "모마", "team": "한국도로공사", "code": "1000170", "tpc": 670.8, "salary": 4.05, "x": 879, "xlbl": "공격성공", "y": 44.82, "ylbl": "공격성공률(%)", "val1": 948, "lbl1": "득점", "val2": 44.82, "lbl2": "공격성공률(%)"}, {"name": "빅토리아", "team": "IBK기업은행", "code": "1000425", "tpc": 624.5, "salary": 3.38, "x": 835, "xlbl": "공격성공", "y": 42.3, "ylbl": "공격성공률(%)", "val1": 918, "lbl1": "득점", "val2": 42.3, "lbl2": "공격성공률(%)"}, {"name": "조이", "team": "페퍼저축은행", "code": "1000536", "tpc": 606.4, "salary": 3.38, "x": 782, "xlbl": "공격성공", "y": 47.25, "ylbl": "공격성공률(%)", "val1": 880, "lbl1": "득점", "val2": 47.25, "lbl2": "공격성공률(%)"}, {"name": "레베카", "team": "흥국생명", "code": "1000149", "tpc": 560.7, "salary": 3.38, "x": 694, "xlbl": "공격성공", "y": 41.19, "ylbl": "공격성공률(%)", "val1": 746, "lbl1": "득점", "val2": 41.19, "lbl2": "공격성공률(%)"}, {"name": "카리", "team": "현대건설", "code": "1000543", "tpc": 550.5, "salary": 3.38, "x": 645, "xlbl": "공격성공", "y": 39.04, "ylbl": "공격성공률(%)", "val1": 749, "lbl1": "득점", "val2": 39.04, "lbl2": "공격성공률(%)"}, {"name": "자네트", "team": "정관장", "code": "1000538", "tpc": 395.5, "salary": 3.38, "x": 513, "xlbl": "공격성공", "y": 37.55, "ylbl": "공격성공률(%)", "val1": 586, "lbl1": "득점", "val2": 37.55, "lbl2": "공격성공률(%)"}], "OH": [{"name": "야우치", "team": "현대건설", "code": "1000542", "tpc": 459.1, "salary": 2.02, "x": 466, "xlbl": "득점", "y": 357, "ylbl": "리시브정확", "val1": 466, "lbl1": "득점", "val2": 37.97, "lbl2": "리시브효율(%)"}, {"name": "강소휘", "team": "한국도로공사", "code": "0001704", "tpc": 430.3, "salary": 8.0, "x": 421, "xlbl": "득점", "y": 300, "ylbl": "리시브정확", "val1": 421, "lbl1": "득점", "val2": 32.89, "lbl2": "리시브효율(%)"}, {"name": "유서연", "team": "GS칼텍스", "code": "0001853", "tpc": 357.5, "salary": 4.0, "x": 377, "xlbl": "득점", "y": 293, "ylbl": "리시브정확", "val1": 377, "lbl1": "득점", "val2": 35.51, "lbl2": "리시브효율(%)"}, {"name": "육서영", "team": "IBK기업은행", "code": "0002217", "tpc": 326.7, "salary": 3.0, "x": 380, "xlbl": "득점", "y": 314, "ylbl": "리시브정확", "val1": 380, "lbl1": "득점", "val2": 26.43, "lbl2": "리시브효율(%)"}, {"name": "김다은", "team": "흥국생명", "code": "0002224", "tpc": 249.4, "salary": 0.75, "x": 294, "xlbl": "득점", "y": 216, "ylbl": "리시브정확", "val1": 294, "lbl1": "득점", "val2": 21.89, "lbl2": "리시브효율(%)"}, {"name": "레이나", "team": "GS칼텍스", "code": "1000322", "tpc": 246.9, "salary": 2.02, "x": 302, "xlbl": "득점", "y": 188, "ylbl": "리시브정확", "val1": 302, "lbl1": "득점", "val2": 27.21, "lbl2": "리시브효율(%)"}, {"name": "박혜민", "team": "정관장", "code": "0002121", "tpc": 246.8, "salary": 1.8, "x": 255, "xlbl": "득점", "y": 324, "ylbl": "리시브정확", "val1": 255, "lbl1": "득점", "val2": 25.86, "lbl2": "리시브효율(%)"}], "MB": [{"name": "양효진", "team": "현대건설", "code": "0000741", "tpc": 390.3, "salary": 8.0, "x": 108, "xlbl": "블로킹성공", "y": 460, "ylbl": "득점", "val1": 460, "lbl1": "득점", "val2": 108, "lbl2": "블로킹성공"}, {"name": "시마무라", "team": "페퍼저축은행", "code": "1000537", "tpc": 333.0, "salary": 2.02, "x": 67, "xlbl": "블로킹성공", "y": 431, "ylbl": "득점", "val1": 431, "lbl1": "득점", "val2": 67, "lbl2": "블로킹성공"}, {"name": "최정민", "team": "IBK기업은행", "code": "1000044", "tpc": 321.9, "salary": 1.2, "x": 83, "xlbl": "블로킹성공", "y": 385, "ylbl": "득점", "val1": 385, "lbl1": "득점", "val2": 83, "lbl2": "블로킹성공"}, {"name": "박은진", "team": "정관장", "code": "0002117", "tpc": 228.5, "salary": 3.8, "x": 80, "xlbl": "블로킹성공", "y": 315, "ylbl": "득점", "val1": 315, "lbl1": "득점", "val2": 80, "lbl2": "블로킹성공"}, {"name": "피치", "team": "흥국생명", "code": "1000438", "tpc": 224.2, "salary": 2.3, "x": 85, "xlbl": "블로킹성공", "y": 274, "ylbl": "득점", "val1": 274, "lbl1": "득점", "val2": 85, "lbl2": "블로킹성공"}, {"name": "이주아", "team": "IBK기업은행", "code": "0002130", "tpc": 218.6, "salary": 0.55, "x": 84, "xlbl": "블로킹성공", "y": 291, "ylbl": "득점", "val1": 291, "lbl1": "득점", "val2": 84, "lbl2": "블로킹성공"}, {"name": "김세빈", "team": "한국도로공사", "code": "1000312", "tpc": 193.6, "salary": 1.1, "x": 106, "xlbl": "블로킹성공", "y": 268, "ylbl": "득점", "val1": 268, "lbl1": "득점", "val2": 106, "lbl2": "블로킹성공"}], "L": [{"name": "문정원", "team": "한국도로공사", "code": "0001271", "tpc": 241.4, "salary": 2.5, "x": 364, "xlbl": "리시브성공", "y": 697, "ylbl": "디그성공", "val1": 697, "lbl1": "디그성공", "val2": 49.27, "lbl2": "리시브효율(%)"}, {"name": "한다혜", "team": "페퍼저축은행", "code": "0001494", "tpc": 200.6, "salary": 2.9, "x": 290, "xlbl": "리시브성공", "y": 609, "ylbl": "디그성공", "val1": 609, "lbl1": "디그성공", "val2": 35.89, "lbl2": "리시브효율(%)"}, {"name": "김연견", "team": "현대건설", "code": "0001267", "tpc": 192.1, "salary": 4.0, "x": 209, "xlbl": "리시브성공", "y": 681, "ylbl": "디그성공", "val1": 681, "lbl1": "디그성공", "val2": 35.67, "lbl2": "리시브효율(%)"}, {"name": "임명옥", "team": "IBK기업은행", "code": "0000405", "tpc": 175.2, "salary": 1.5, "x": 220, "xlbl": "리시브성공", "y": 589, "ylbl": "디그성공", "val1": 589, "lbl1": "디그성공", "val2": 45.26, "lbl2": "리시브효율(%)"}, {"name": "노란", "team": "정관장", "code": "0001407", "tpc": 163.3, "salary": 2.0, "x": 191, "xlbl": "리시브성공", "y": 642, "ylbl": "디그성공", "val1": 642, "lbl1": "디그성공", "val2": 29.4, "lbl2": "리시브효율(%)"}, {"name": "한수진", "team": "GS칼텍스", "code": "0001964", "tpc": 152.3, "salary": 1.5, "x": 187, "xlbl": "리시브성공", "y": 515, "ylbl": "디그성공", "val1": 515, "lbl1": "디그성공", "val2": 36.71, "lbl2": "리시브효율(%)"}, {"name": "도수빈", "team": "흥국생명", "code": "0001854", "tpc": 99.5, "salary": 1.0, "x": 235, "xlbl": "리시브성공", "y": 229, "ylbl": "디그성공", "val1": 229, "lbl1": "디그성공", "val2": 35.07, "lbl2": "리시브효율(%)"}], "S": [{"name": "김다인", "team": "현대건설", "code": "0001981", "tpc": 366.5, "salary": 2.4, "x": 3721, "xlbl": "세트시도", "y": 67.86, "ylbl": "세트성공률(%)", "val1": 3721, "lbl1": "세트시도", "val2": 67.86, "lbl2": "세트성공률(%)"}, {"name": "이윤정", "team": "한국도로공사", "code": "1000160", "tpc": 301.7, "salary": 1.2, "x": 3214, "xlbl": "세트시도", "y": 60.95, "ylbl": "세트성공률(%)", "val1": 3214, "lbl1": "세트시도", "val2": 60.95, "lbl2": "세트성공률(%)"}, {"name": "김지원", "team": "GS칼텍스", "code": "1000051", "tpc": 268.8, "salary": 1.2, "x": 2809, "xlbl": "세트시도", "y": 55.65, "ylbl": "세트성공률(%)", "val1": 2809, "lbl1": "세트시도", "val2": 55.65, "lbl2": "세트성공률(%)"}, {"name": "최서현", "team": "정관장", "code": "1000316", "tpc": 236.2, "salary": 0.5, "x": 3050, "xlbl": "세트시도", "y": 60.35, "ylbl": "세트성공률(%)", "val1": 3050, "lbl1": "세트시도", "val2": 60.35, "lbl2": "세트성공률(%)"}, {"name": "박은서", "team": "IBK기업은행", "code": "0002131", "tpc": 230.8, "salary": 0.5, "x": 2714, "xlbl": "세트시도", "y": 49.82, "ylbl": "세트성공률(%)", "val1": 2714, "lbl1": "세트시도", "val2": 49.82, "lbl2": "세트성공률(%)"}, {"name": "박사랑", "team": "페퍼저축은행", "code": "1000130", "tpc": 223.8, "salary": 0.8, "x": 2190, "xlbl": "세트시도", "y": 44.19, "ylbl": "세트성공률(%)", "val1": 2190, "lbl1": "세트시도", "val2": 44.19, "lbl2": "세트성공률(%)"}, {"name": "이나연", "team": "흥국생명", "code": "0001209", "tpc": 157.0, "salary": 0.65, "x": 1975, "xlbl": "세트시도", "y": 38.19, "ylbl": "세트성공률(%)", "val1": 1975, "lbl1": "세트시도", "val2": 38.19, "lbl2": "세트성공률(%)"}], "Best7": [{"name": "실바", "team": "GS칼텍스", "code": "1000345", "tpc": 718.4, "val1": 1083, "lbl1": "득점", "val2": 47.33, "lbl2": "공격성공률(%)", "pos_name": "OP"}, {"name": "야우치", "team": "현대건설", "code": "1000542", "tpc": 459.1, "val1": 466, "lbl1": "득점", "val2": 37.97, "lbl2": "리시브효율(%)", "pos_name": "OH"}, {"name": "강소휘", "team": "한국도로공사", "code": "0001704", "tpc": 430.3, "val1": 421, "lbl1": "득점", "val2": 32.89, "lbl2": "리시브효율(%)", "pos_name": "OH"}, {"name": "문정원", "team": "한국도로공사", "code": "0001271", "tpc": 241.4, "val1": 697, "lbl1": "디그성공", "val2": 49.27, "lbl2": "리시브효율(%)", "pos_name": "L"}, {"name": "김다인", "team": "현대건설", "code": "0001981", "tpc": 366.5, "val1": 3721, "lbl1": "세트시도", "val2": 67.86, "lbl2": "세트성공률(%)", "pos_name": "S"}, {"name": "양효진", "team": "현대건설", "code": "0000741", "tpc": 390.3, "val1": 460, "lbl1": "득점", "val2": 108, "lbl2": "블로킹", "pos_name": "MB"}, {"name": "시마무라", "team": "페퍼저축은행", "code": "1000537", "tpc": 333.0, "val1": 431, "lbl1": "득점", "val2": 67, "lbl2": "블로킹", "pos_name": "MB"}]}
   };
 
   Chart.defaults.font.family = "'Pretendard', sans-serif";
@@ -251,43 +273,42 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   `).join('');
 
-  // 2. 팀 TPC 바 차트 렌더링 (팀별 색상 적용)
+  // 2. 팀 TPC 차트
   new Chart(document.getElementById('tpcChart'), {
     type: 'bar',
     data: {
-      labels: DATA.teamTPC.map(d => d.team),
+      labels: DATA.teamStats.map(d => d.team),
       datasets: [{
-        label: 'TPC',
-        data: DATA.teamTPC.map(d => d.tpc),
-        backgroundColor: DATA.teamTPC.map(d => TEAM_COLORS[d.team]),
+        data: DATA.teamStats.map(d => d.tpc),
+        backgroundColor: DATA.teamStats.map(d => TEAM_COLORS[d.team]),
         borderRadius: 4
       }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { display: false }, datalabels: { display: false } },
       scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { grid: { color: '#E2E8F0' } } }
     }
   });
 
-  // 2-1. 팀별 지표 카드
-  document.getElementById('tpcBreakdownList').innerHTML = DATA.teamTPC.map(t => `
+  // 2-1. 팀별 5대 지표
+  document.getElementById('tpcBreakdownList').innerHTML = DATA.teamStats.map(t => `
     <div class="tpc-card">
       <div class="tpc-card-header">
         <div class="tpc-team-info"><img src="${LOGOS[t.team]}" alt="${t.team}"><span>${t.team}</span></div>
         <div class="tpc-total">${t.tpc.toFixed(1)}</div>
       </div>
       <div class="tpc-stats-grid">
-        <div class="tpc-stat-item"><div class="tpc-stat-lbl">공격</div><div class="tpc-stat-val">${t.atk.toFixed(0)}</div></div>
-        <div class="tpc-stat-item"><div class="tpc-stat-lbl">블로킹</div><div class="tpc-stat-val">${t.blk.toFixed(0)}</div></div>
-        <div class="tpc-stat-item"><div class="tpc-stat-lbl">수비</div><div class="tpc-stat-val">${t.def.toFixed(0)}</div></div>
-        <div class="tpc-stat-item"><div class="tpc-stat-lbl">세트</div><div class="tpc-stat-val">${t.set.toFixed(0)}</div></div>
-        <div class="tpc-stat-item"><div class="tpc-stat-lbl">서브</div><div class="tpc-stat-val" style="color:${t.srv<0?'#E11D48':'#1E293B'}">${t.srv.toFixed(0)}</div></div>
+        <div class="tpc-stat-item"><div class="tpc-stat-lbl">공격성공</div><div class="tpc-stat-val">${t.atk}</div></div>
+        <div class="tpc-stat-item"><div class="tpc-stat-lbl">블로킹성공</div><div class="tpc-stat-val">${t.blk}</div></div>
+        <div class="tpc-stat-item"><div class="tpc-stat-lbl">리시브성공</div><div class="tpc-stat-val">${t.rec}</div></div>
+        <div class="tpc-stat-item"><div class="tpc-stat-lbl">서브성공</div><div class="tpc-stat-val">${t.srv}</div></div>
+        <div class="tpc-stat-item"><div class="tpc-stat-lbl" style="color:#E11D48;">범실합계</div><div class="tpc-stat-val negative">-${t.err}</div></div>
       </div>
     </div>
   `).join('');
 
-  // 3. 포지션별 렌더링 (7명)
+  // 3. 포지션별 렌더링
   let posHtml = '';
   DATA.posInfo.forEach(info => {
     const pData = DATA.players[info.id];
@@ -298,31 +319,39 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="pos-section">
         <div class="pos-title">${info.title}</div>
         <p style="font-size:0.8rem; color:#64748B; margin-bottom:15px;">${info.desc}</p>
-        <div class="chart-container" style="height:220px; margin-bottom:15px;"><canvas id="chart-${info.id}"></canvas></div>
+        <div class="chart-container" style="height:250px; margin-bottom:15px;"><canvas id="chart-${info.id}"></canvas></div>
 
         <div class="top-player-card">
-          <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${topPlayer.code}.webp" class="player-photo" alt="${topPlayer.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
-          <div class="player-info">
-            <div class="rank-badge" style="background:${TEAM_COLORS[topPlayer.team].replace(/[\d.]+\)$/g, '1)')}">TPC 1위</div>
-            <h3>${topPlayer.name}</h3>
-            <p>${topPlayer.team}</p>
-            <div class="p-stats">
-              <div class="stat-col"><div class="stat-val main">${topPlayer.tpc.toFixed(1)}</div><div class="stat-lbl">TPC</div></div>
-              <div class="stat-col"><div class="stat-val">${topPlayer.val1}</div><div class="stat-lbl">${topPlayer.lbl1}</div></div>
-              <div class="stat-col"><div class="stat-val">${topPlayer.val2}</div><div class="stat-lbl">${topPlayer.lbl2}</div></div>
+          <div class="player-flex">
+            <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${topPlayer.code}.webp" class="player-photo" alt="${topPlayer.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
+            <div class="player-info">
+              <div class="rank-badge" style="background:${TEAM_COLORS[topPlayer.team].replace(/[\d.]+\)$/g, '1)')}">TPC 1위</div>
+              <h3>${topPlayer.name}</h3>
+              <p>${topPlayer.team} · 연봉 ${topPlayer.salary}억</p>
             </div>
+          </div>
+          <div class="p-stats">
+            <div class="stat-col"><div class="stat-val main">${topPlayer.tpc.toFixed(1)}</div><div class="stat-lbl">TPC</div></div>
+            <div class="stat-col"><div class="stat-val">${topPlayer.val1}</div><div class="stat-lbl">${topPlayer.lbl1}</div></div>
+            <div class="stat-col"><div class="stat-val">${topPlayer.val2}</div><div class="stat-lbl">${topPlayer.lbl2}</div></div>
           </div>
         </div>
 
         ${runners.map((p, i) => `
           <div class="runner-up-row">
-            <div class="ru-rank">${i+2}</div>
-            <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="ru-photo" alt="${p.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
-            <div class="ru-info">
-              <h4>${p.name}</h4>
-              <span>${p.team}</span>
+            <div class="player-flex" style="margin-bottom: 12px;">
+              <div class="ru-rank">${i+2}</div>
+              <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="ru-photo" alt="${p.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
+              <div class="player-info">
+                <h4 style="font-size:1.05rem; font-weight:800; margin-bottom:2px;">${p.name}</h4>
+                <p style="font-size:0.75rem; color:#64748B; margin:0;">${p.team} · 연봉 ${p.salary}억</p>
+              </div>
             </div>
-            <div class="ru-score" style="color:${TEAM_COLORS[p.team].replace(/[\d.]+\)$/g, '1)')}">${p.val1}<span>${p.lbl1}</span></div>
+            <div class="p-stats" style="background:transparent; padding:0; border:none;">
+              <div class="stat-col"><div class="stat-val main">${p.tpc.toFixed(1)}</div><div class="stat-lbl">TPC</div></div>
+              <div class="stat-col"><div class="stat-val">${p.val1}</div><div class="stat-lbl">${p.lbl1}</div></div>
+              <div class="stat-col"><div class="stat-val">${p.val2}</div><div class="stat-lbl">${p.lbl2}</div></div>
+            </div>
           </div>
         `).join('')}
       </div>
@@ -330,12 +359,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('positionsWrapper').innerHTML = posHtml;
 
-  // 3-1. 포지션별 산점도 버블 차트 그리기 (크기: 연봉)
+  // 3-1. 포지션별 버블 차트 (선수 이름 레이블 포함)
   DATA.posInfo.forEach(info => {
     const pData = DATA.players[info.id];
-    // 연봉(억)을 버블 사이즈(반지름)로 매핑. (예: 1억=6, 8억=20)
     const chartData = pData.map(p => ({
-        x: p.x, y: p.y, r: Math.max((p.salary * 2) + 4, 5),
+        x: p.x, y: p.y, r: Math.max((p.salary * 2) + 4, 6),
         name: p.name, team: p.team, salary: p.salary, 
         xlbl: p.xlbl, ylbl: p.ylbl
     }));
@@ -355,27 +383,52 @@ document.addEventListener('DOMContentLoaded', () => {
             responsive: true, maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
-                tooltip: { callbacks: { label: ctx => `${ctx.raw.name}(${ctx.raw.team}) - 연봉: ${ctx.raw.salary}억 / ${ctx.raw.xlbl}: ${ctx.raw.x}, ${ctx.raw.ylbl}: ${ctx.raw.y}` } }
+                tooltip: { callbacks: { label: ctx => `${ctx.raw.name} (${ctx.raw.salary}억) / ${ctx.raw.xlbl}:${ctx.raw.x}, ${ctx.raw.ylbl}:${ctx.raw.y}` } },
+                // DataLabels 플러그인을 이용해 선수 이름을 버블 위에 표시
+                datalabels: {
+                    formatter: function(value, context) { return value.name; },
+                    align: 'top', anchor: 'end',
+                    font: { size: 11, weight: 'bold', family: "'Pretendard', sans-serif" },
+                    color: '#1E293B',
+                    offset: 2
+                }
             },
             scales: {
-                x: { title: { display: true, text: pData[0].xlbl, font: {size:10} }, grid: { color: '#E2E8F0' } },
-                y: { title: { display: true, text: pData[0].ylbl, font: {size:10} }, grid: { color: '#E2E8F0' } }
-            }
+                x: { title: { display: true, text: pData[0].xlbl, font: {size:11} }, grid: { color: '#E2E8F0' } },
+                y: { title: { display: true, text: pData[0].ylbl, font: {size:11} }, grid: { color: '#E2E8F0' } }
+            },
+            layout: { padding: { top: 20, right: 20 } } // 레이블이 잘리지 않도록 여백 추가
         }
     });
   });
 
   // 4. Best 7 렌더링
   document.getElementById('best7List').innerHTML = DATA.players.Best7.map(p => `
-    <div class="best7-card">
-      <div class="best7-pos">${p.pos_name}</div>
+    <div class="list-card">
+      <div class="list-card-bg-txt">${p.pos_name}</div>
       <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="player-photo" style="width:60px; height:60px;" alt="${p.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
       <div class="player-info" style="z-index:1;">
-        <div style="font-size:0.7rem; color:${TEAM_COLORS[p.team].replace(/[\d.]+\)$/g, '1)')}; font-weight:800; margin-bottom:2px;">${p.team}</div>
-        <h3 style="font-size:1.1rem; margin-bottom:4px;">${p.name}</h3>
-        <div style="display:flex; gap:10px; font-size:0.8rem;">
+        <div style="font-size:0.75rem; color:${TEAM_COLORS[p.team].replace(/[\d.]+\)$/g, '1)')}; font-weight:800; margin-bottom:2px;">${p.team}</div>
+        <h3 style="font-size:1.15rem; margin-bottom:4px;">${p.name}</h3>
+        <div style="display:flex; gap:10px; font-size:0.85rem;">
           <div><span style="color:#64748B;">TPC</span> <strong style="color:#1E293B">${p.tpc.toFixed(1)}</strong></div>
           <div><span style="color:#64748B;">${p.lbl1}</span> <strong style="color:#1E293B">${p.val1}</strong></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // 5. 가성비 Top 5 렌더링
+  document.getElementById('effList').innerHTML = DATA.efficiency.map((p, i) => `
+    <div class="list-card" style="border:1px solid #10B981;">
+      <div class="list-card-bg-txt" style="color:rgba(16,185,129,0.05);">${i+1}</div>
+      <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="player-photo" style="width:60px; height:60px;" alt="${p.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
+      <div class="player-info" style="z-index:1;">
+        <div style="font-size:0.75rem; color:#10B981; font-weight:800; margin-bottom:2px;">${p.team} · ${p.pos}</div>
+        <h3 style="font-size:1.15rem; margin-bottom:4px;">${p.name} <span style="font-size:0.8rem; font-weight:normal; color:#64748B;">(연봉 ${p.salary}억)</span></h3>
+        <div style="display:flex; gap:10px; font-size:0.85rem;">
+          <div><span style="color:#64748B;">총 TPC</span> <strong style="color:#1E293B">${p.tpc}</strong></div>
+          <div><span style="color:#10B981; font-weight:800;">1억당 효율</span> <strong style="color:#1E293B">${p.eff}점</strong></div>
         </div>
       </div>
     </div>
