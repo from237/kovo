@@ -424,4 +424,32 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="list-card-bg-txt">${p.pos_name}</div>
       <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="player-photo" style="width:60px; height:60px;" alt="${p.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
       <div class="player-info" style="z-index:1;">
-        <div style="font-size:0.75rem; color:${TEAM_COLORS[p.team].replace(/[\d
+        <div style="font-size:0.75rem; color:${TEAM_COLORS[p.team].replace(/[\d.]+\)$/g, '1)')}; font-weight:800; margin-bottom:2px;">${p.team}</div>
+        <h3 style="font-size:1.15rem; margin-bottom:4px;">${p.name}</h3>
+        <div style="display:flex; gap:10px; font-size:0.85rem;">
+          <div><span style="color:#64748B;">TPC</span> <strong style="color:#1E293B">${p.tpc.toFixed(1)}</strong></div>
+          <div><span style="color:#64748B;">${p.lbl1}</span> <strong style="color:#1E293B">${p.val1}</strong></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // 5. 가성비 Top 5 렌더링
+  document.getElementById('effList').innerHTML = DATA.efficiency.map((p, i) => `
+    <div class="list-card" style="border:1px solid #10B981;">
+      <div class="list-card-bg-txt" style="color:rgba(16,185,129,0.05);">${i+1}</div>
+      <img src="https://cdn.kovo.co.kr/kovo-prod/player/webp/${p.code}.webp" class="player-photo" style="width:60px; height:60px;" alt="${p.name}" onerror="this.src='https://cdn.kovo.co.kr/emblems/kovo.svg'">
+      <div class="player-info" style="z-index:1;">
+        <div style="font-size:0.75rem; color:#10B981; font-weight:800; margin-bottom:2px;">${p.team} · ${p.pos}</div>
+        <h3 style="font-size:1.15rem; margin-bottom:4px;">${p.name} <span style="font-size:0.8rem; font-weight:normal; color:#64748B;">(연봉 ${p.salary}억)</span></h3>
+        <div style="display:flex; gap:10px; font-size:0.85rem;">
+          <div><span style="color:#64748B;">총 TPC</span> <strong style="color:#1E293B">${p.tpc}</strong></div>
+          <div><span style="color:#10B981; font-weight:800;">1억당 효율</span> <strong style="color:#1E293B">${p.eff}점</strong></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+});
+</script>
+</body>
+</html>
